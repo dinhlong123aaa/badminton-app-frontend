@@ -12,7 +12,8 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ navigation,route }) => {
+  const { userId } = route.params || {};
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,7 +56,8 @@ const HomeScreen = ({ navigation }) => {
         style={styles.courseCard}
         onPress={() => navigation.navigate('CourseLessons', {
           courseId: item.id,
-          courseName: item.courseName
+          courseName: item.courseName,
+          studentId: userId
         })}
       >
         <View style={styles.courseContent}>

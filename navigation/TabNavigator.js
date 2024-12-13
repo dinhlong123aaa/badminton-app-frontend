@@ -6,6 +6,7 @@ import HomeScreen from '../screens/HomeScreen';
 import LessonsStackNavigator from './LessonsStackNavigator';
 import UserInfoScreen from '../screens/UserInfoScreen';
 import ManagementStackNavigator from './ManagementStackNavigator';
+import BadmintonScoreScreen from '../screens/BadmintonScoreScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -30,6 +31,9 @@ const TabNavigator = ({ screenProps }) => {
             case 'Quản lý':
               iconName = 'cogs';
               break;
+            case 'Luyện tập':
+              iconName = 'circle-o';
+              break;
             default:
               iconName = 'circle';
           }
@@ -43,13 +47,19 @@ const TabNavigator = ({ screenProps }) => {
       <Tab.Screen
         name="Trang chủ"
         component={HomeScreen}
+        initialParams={{ 
+          userId: userId,
+          username: username,
+          role: role
+        }}
       />
       <Tab.Screen
         name="Bài học"
         component={LessonsStackNavigator}
         initialParams={{
           username: username,
-          userId: userId
+          userId: userId,
+          role: role
         }}
       />
       <Tab.Screen
@@ -63,6 +73,10 @@ const TabNavigator = ({ screenProps }) => {
           component={ManagementStackNavigator}
         />
       )}
+      <Tab.Screen
+        name="Luyện tập"
+        component={BadmintonScoreScreen}
+      />
     </Tab.Navigator>
   );
 };
