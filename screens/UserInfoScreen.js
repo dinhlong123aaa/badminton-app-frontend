@@ -31,7 +31,7 @@ const UserInfoScreen = ({ route }) => {
 
   const fetchUserInfo = async () => {
     try {
-      const response = await axios.get(`http://10.0.2.2:8080/api/auth/users/username/${username}`);
+      const response = await axios.get(`http://47.129.50.166:8080/api/auth/users/username/${username}`);
       if (response.status === 200) {
         setUserInfo(response.data.data);
       }
@@ -58,7 +58,7 @@ const UserInfoScreen = ({ route }) => {
     }
   
     try {
-      const response = await axios.put(`http://10.0.2.2:8080/api/auth/users/change-password/${username}`, {
+      const response = await axios.put(`http://47.129.50.166:8080/api/auth/users/change-password/${username}`, {
         newPassword: newPassword
       });
   

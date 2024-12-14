@@ -41,7 +41,7 @@ const RevenueChartScreen = ({ route }) => {
       const endMonth = endDate.getMonth() + 1;
 
       const response = await axios.get(
-        `http://10.0.2.2:8080/api/v1/registrations/revenue-between-months?startYear=${startYear}&startMonth=${startMonth}&endYear=${endYear}&endMonth=${endMonth}`
+        `http://47.129.50.166:8080/api/v1/registrations/revenue-between-months?startYear=${startYear}&startMonth=${startMonth}&endYear=${endYear}&endMonth=${endMonth}`
       );
 
       const monthlyData = response.data.data;

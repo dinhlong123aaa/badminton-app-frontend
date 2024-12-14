@@ -27,12 +27,18 @@
       }
     },
     "expo": {
-    "web": {
-      "favicon": "./assets/favicon.png",
+      "name": "Badminton",
+      "slug": "myapp",
+      "platforms": [
+        "ios",
+        "android"
+      ],
+      "version": "1.0.0",
       "build": {
-        "output": "static"
+        "android": {
+          "package": "com.example.badminton"
+        }
       }
     }
-  }
   }
 }

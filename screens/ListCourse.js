@@ -44,7 +44,7 @@ const ListCourse = () => {
   const fetchCourses = async () => {
     try {
       setError(null);
-      const response = await axios.get('http://10.0.2.2:8080/api/courses/all');
+      const response = await axios.get('http://47.129.50.166:8080/api/courses/all');
       if (response.status === 200) {
         setCourses(response.data.data || []);
       }

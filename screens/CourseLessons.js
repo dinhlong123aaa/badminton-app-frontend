@@ -82,7 +82,7 @@ const CourseLessons = () => {
   const fetchRegistrationStatus = async () => {
     try {
       const response = await axios.get(
-        `http://10.0.2.2:8080/api/v1/registrations/student/${studentId}/course/${courseId}`
+        `http://47.129.50.166:8080/api/v1/registrations/student/${studentId}/course/${courseId}`
       );
       setRegistration(response.data);
     } catch (error) {
@@ -93,7 +93,7 @@ const CourseLessons = () => {
 
   const fetchCourseDetails = async () => {
     try {
-      const response = await axios.get(`http://10.0.2.2:8080/api/courses/${courseId}`);
+      const response = await axios.get(`http://47.129.50.166:8080/api/courses/${courseId}`);
       if (response.status === 200) {
         setCourseDetails(response.data.data);
       }
@@ -106,7 +106,7 @@ const CourseLessons = () => {
 
   const fetchLessons = async () => {
     try {
-      const response = await axios.get(`http://10.0.2.2:8080/api/lessons/course/${courseId}`);
+      const response = await axios.get(`http://47.129.50.166:8080/api/lessons/course/${courseId}`);
       if (response.status === 200) {
         setLessons(response.data.data);
       }
@@ -117,7 +117,7 @@ const CourseLessons = () => {
 
   const fetchFeedbacks = async () => {
     try {
-      const response = await axios.get(`http://10.0.2.2:8080/api/feedbacks/course/${courseId}`);
+      const response = await axios.get(`http://47.129.50.166:8080/api/feedbacks/course/${courseId}`);
       if (response.status === 200) {
         setFeedbacks(response.data.data);
       }
@@ -154,7 +154,7 @@ const CourseLessons = () => {
         rating: newFeedback.rating,
       };
       console.log('Feedback data:', feedbackData);
-      const response = await axios.post('http://10.0.2.2:8080/api/feedbacks', feedbackData);
+      const response = await axios.post('http://47.129.50.166:8080/api/feedbacks', feedbackData);
       console.log(response.data.message);
       if (response.status === 200) {
         Toast.show('Phản hồi đã được thêm');
@@ -177,7 +177,7 @@ const CourseLessons = () => {
 
     try {
       const response = await axios.patch(
-        `http://10.0.2.2:8080/api/feedbacks/${editingFeedback.id}`,
+        `http://47.129.50.166:8080/api/feedbacks/${editingFeedback.id}`,
         {
 
           id: editingFeedback.id,

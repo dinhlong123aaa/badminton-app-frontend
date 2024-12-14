@@ -24,7 +24,7 @@ const HomeScreen = ({ navigation,route }) => {
 
   const fetchFeaturedCourses = async () => {
     try {
-      const response = await axios.get('http://10.0.2.2:8080/api/courses/highest-rated-courses-all');
+      const response = await axios.get('http://47.129.50.166:8080/api/courses/highest-rated-courses-all');
       if (response.status === 200) {
         const topThreeCourses = response.data.data.slice(0, 3);
         setCourses(topThreeCourses);
