@@ -64,19 +64,20 @@ const ListCourse = () => {
 
   const getLevelDetails = (level) => {
     switch (level?.toLowerCase()) {
-      case 'cơ bản':
-        return { icon: 'star-o', color: '#28a745' };
-      case 'trung bình':
-        return { icon: 'star-half-o', color: '#ffc107' };
-      case 'nâng cao':
-        return { icon: 'star', color: '#dc3545' };
+      case 'beginner':
+        return { icon: 'star-o', color: '#28a745', text: 'Cơ bản' };
+      case 'intermediate':
+        return { icon: 'star-half-o', color: '#ffc107', text: 'Trung bình' };
+      case 'advanced':
+        return { icon: 'star', color: '#dc3545', text: 'Nâng cao' };
       default:
-        return { icon: 'star-o', color: '#6c757d' };
+        return { icon: 'star-o', color: '#6c757d', text: 'Chưa xác định' };
     }
   };
 
   const renderCourseItem = ({ item }) => {
     const levelDetails = getLevelDetails(item.level);
+    
     return (
       <TouchableOpacity
         style={styles.courseCard}
@@ -86,19 +87,27 @@ const ListCourse = () => {
           studentId: userId
         })}
       >
-        <View style={styles.courseHeader}>
-          <Text style={styles.courseName}>{item.courseName}</Text>
-          <View style={[styles.levelBadge, { backgroundColor: levelDetails.color + '20' }]}>
-            <Icon name={levelDetails.icon} size={16} color={levelDetails.color} />
-            <Text style={[styles.levelText, { color: levelDetails.color }]}>
-              {item.level}
-            </Text>
+        <View style={styles.courseContent}>
+          <View style={styles.courseHeader}>
+            <Text style={styles.courseName}>{item.courseName}</Text>
+            <View style={[styles.levelBadge, { backgroundColor: levelDetails.color + '20' }]}>
+              <Icon name={levelDetails.icon} size={16} color={levelDetails.color} />
+              <Text style={[styles.levelText, { color: levelDetails.color }]}>
+                {levelDetails.text}
+              </Text>
+            </View>
           </View>
-        </View>
-        <View style={styles.courseFooter}>
-          <Text style={styles.fee}>
-            <Icon name="money" size={16} color="#28a745" /> {item.fee}k VNĐ
+  
+          <Text style={styles.description} numberOfLines={2}>
+            {item.description}
           </Text>
+  
+          <View style={styles.courseFooter}>
+            <Text style={styles.fee}>
+              {item.fee > 0 ? `${item.fee.toLocaleString()} VNĐ` : ''}
+            </Text>
+            <Icon name="chevron-right" size={16} color="#666" />
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -155,7 +164,6 @@ const styles = StyleSheet.create({
   courseCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 16,
     marginBottom: 16,
     elevation: 3,
     shadowColor: '#000',
@@ -163,11 +171,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+  courseContent: {
+    padding: 16,
+  },
   courseHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   courseName: {
     fontSize: 18,
@@ -175,6 +186,12 @@ const styles = StyleSheet.create({
     color: '#333',
     flex: 1,
     marginRight: 12,
+  },
+  description: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 12,
+    lineHeight: 20,
   },
   levelBadge: {
     flexDirection: 'row',
@@ -190,7 +207,7 @@ const styles = StyleSheet.create({
   },
   courseFooter: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   fee: {

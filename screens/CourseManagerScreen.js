@@ -137,7 +137,7 @@ const CourseManagerScreen = ({ navigation }) => {
       <View style={styles.courseInfo}>
         <Text style={styles.courseName}>{item.courseName}</Text>
         <Text style={styles.courseDetail}>Cấp độ: {item.level}</Text>
-        <Text style={styles.courseDetail}>Học phí: {item.fee}k VNĐ</Text>
+        <Text style={styles.courseDetail}>Học phí: {item.fee} VNĐ</Text>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -221,7 +221,7 @@ const CourseManagerScreen = ({ navigation }) => {
                 </Picker>
               </View>
 
-              <Text style={styles.label}>Học phí (k VNĐ)</Text>
+              <Text style={styles.label}>Học phí ( VNĐ)</Text>
               <TextInput
                 style={styles.input}
                 value={newCourse.fee}

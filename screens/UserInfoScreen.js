@@ -41,18 +41,27 @@ const UserInfoScreen = ({ route }) => {
       setLoading(false);
     }
   };
-
+  const validatePassword = (password) => {
+    // At least 6 characters, contains letters and numbers
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+    return passwordRegex.test(password);
+  };
   const handleChangePassword = async () => {
+    if (!validatePassword(newPassword)) {
+      Toast.show('Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ và số', Toast.LONG);
+      return;
+    }
+  
     if (newPassword !== confirmPassword) {
       Toast.show('Mật khẩu xác nhận không khớp', Toast.LONG);
       return;
     }
-
+  
     try {
-      const response = await axios.put(`http://10.0.2.2:8080/api/auth/users/${userInfo.id}/password`, {
+      const response = await axios.put(`http://10.0.2.2:8080/api/auth/users/change-password/${username}`, {
         newPassword: newPassword
       });
-
+  
       if (response.status === 200) {
         Toast.show('Đổi mật khẩu thành công', Toast.SHORT);
         setModalVisible(false);
@@ -130,7 +139,7 @@ const UserInfoScreen = ({ route }) => {
       </View>
 
       <View style={styles.actionButtons}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.changePasswordButton}
           onPress={() => setModalVisible(true)}
         >
@@ -138,7 +147,7 @@ const UserInfoScreen = ({ route }) => {
           <Text style={styles.buttonText}>Đổi mật khẩu</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.logoutButton}
           onPress={handleLogout}
         >
@@ -156,7 +165,7 @@ const UserInfoScreen = ({ route }) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Đổi mật khẩu</Text>
-            
+
             <TextInput
               style={styles.input}
               placeholder="Mật khẩu mới"
@@ -174,7 +183,7 @@ const UserInfoScreen = ({ route }) => {
             />
 
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => {
                   setModalVisible(false);
@@ -185,7 +194,7 @@ const UserInfoScreen = ({ route }) => {
                 <Text style={styles.buttonText}>Hủy</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.modalButton, styles.saveButton]}
                 onPress={handleChangePassword}
               >

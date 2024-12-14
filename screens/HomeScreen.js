@@ -26,7 +26,8 @@ const HomeScreen = ({ navigation,route }) => {
     try {
       const response = await axios.get('http://10.0.2.2:8080/api/courses/highest-rated-courses-all');
       if (response.status === 200) {
-        setCourses(response.data.data);
+        const topThreeCourses = response.data.data.slice(0, 3);
+        setCourses(topThreeCourses);
       }
     } catch (error) {
       setError('Không thể tải khóa học nổi bật');
@@ -75,7 +76,7 @@ const HomeScreen = ({ navigation,route }) => {
             </View>
             
             <Text style={styles.fee}>
-              <Icon name="money" size={16} color="#28a745" /> {item.fee}k VNĐ
+              {item.fee} VNĐ
             </Text>
           </View>
         </View>

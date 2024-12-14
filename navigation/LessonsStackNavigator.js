@@ -33,14 +33,17 @@ export default function LessonsStackNavigator({ route }) {
         options={({ route }) => ({ title: route.params?.title })}
       />
       {/* Corrected the navigator here */}
-      <LessonsStack.Screen
+      {/* <LessonsStack.Screen
         name="Payment"
         component={PaymentScreen}
-        options={{ 
+        options={{
           title: 'Thanh toán',
           presentation: 'modal'
         }}
-      />
+        initialParams={{
+          userId: params.userId
+        }}
+      /> */}
     </LessonsStack.Navigator>
   );
 }

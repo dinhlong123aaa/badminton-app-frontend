@@ -1,5 +1,5 @@
 // CourseLessons.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import {
   SafeAreaView,
   View,
@@ -17,6 +17,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 import Toast from 'react-native-simple-toast';
+
 
 const RatingStars = ({ rating, onRatingChange, disabled }) => (
   <View style={styles.ratingContainer}>
@@ -37,11 +38,22 @@ const RatingStars = ({ rating, onRatingChange, disabled }) => (
   </View>
 );
 
+const getLevelDetails = (level) => {
+  switch (level?.toLowerCase()) {
+    case 'cơ bản':
+      return { icon: 'star-o', color: '#28a745' };
+    case 'trung bình':
+      return { icon: 'star-half-o', color: '#ffc107' };
+    case 'nâng cao':
+      return { icon: 'star', color: '#dc3545' };
+    default:
+      return { icon: 'star-o', color: '#6c757d' };
+  }
+};
 const CourseLessons = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { courseId, courseName, studentId } = route.params || {};
-
   const [courseDetails, setCourseDetails] = useState(null);
   const [lessons, setLessons] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
@@ -49,8 +61,11 @@ const CourseLessons = () => {
     content: '',
     rating: 5,
   });
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editingFeedback, setEditingFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFeedbackModalVisible, setIsFeedbackModalVisible] = useState(false);
+  const [registration, setRegistration] = useState(null);
 
   useEffect(() => {
     if (!courseId || !studentId) {
@@ -59,9 +74,22 @@ const CourseLessons = () => {
       return;
     }
     fetchCourseDetails();
+    fetchRegistrationStatus();
     fetchLessons();
     fetchFeedbacks();
   }, [courseId, studentId]);
+
+  const fetchRegistrationStatus = async () => {
+    try {
+      const response = await axios.get(
+        `http://10.0.2.2:8080/api/v1/registrations/student/${studentId}/course/${courseId}`
+      );
+      setRegistration(response.data);
+    } catch (error) {
+      console.log('No registration found');
+      setRegistration(null);
+    }
+  };
 
   const fetchCourseDetails = async () => {
     try {
@@ -101,9 +129,11 @@ const CourseLessons = () => {
   const handlePayment = () => {
     if (courseDetails?.fee) {
       navigation.navigate('Payment', {
-        amount: courseDetails.fee * 1000,
+        amount: courseDetails.fee,
         courseId: courseId,
         courseName: courseDetails.courseName,
+        level: courseDetails.level,
+        studentId: studentId,
       });
     } else {
       Toast.show('Không thể lấy thông tin học phí');
@@ -123,38 +153,100 @@ const CourseLessons = () => {
         content: newFeedback.content.trim(),
         rating: newFeedback.rating,
       };
-
+      console.log('Feedback data:', feedbackData);
       const response = await axios.post('http://10.0.2.2:8080/api/feedbacks', feedbackData);
+      console.log(response.data.message);
       if (response.status === 200) {
         Toast.show('Phản hồi đã được thêm');
         setNewFeedback({ content: '', rating: 5 });
         fetchFeedbacks();
         setIsFeedbackModalVisible(false);
+      } else {
+        //show response.data.message
+        Toast.show(response.data.message);
       }
     } catch (error) {
       Toast.show('Không thể thêm phản hồi', Toast.LONG);
     }
   };
+  const handleEditFeedback = async () => {
+    if (!editingFeedback.content.trim()) {
+      Toast.show('Vui lòng nhập nội dung phản hồi', Toast.LONG);
+      return;
+    }
 
-  const renderLessonItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.lessonCard}
-      onPress={() =>
-        navigation.navigate('LessonScreen', {
-          lessonId: item.id,
-          title: item.title,
-        })
+    try {
+      const response = await axios.patch(
+        `http://10.0.2.2:8080/api/feedbacks/${editingFeedback.id}`,
+        {
+
+          id: editingFeedback.id,
+          content: editingFeedback.content.trim(),
+          rating: editingFeedback.rating,
+          feedbackDate: new Date().toISOString().split('T')[0]
+        }
+      );
+
+      if (response.status === 200) {
+        Toast.show('Cập nhật đánh giá thành công');
+        setIsEditModalVisible(false);
+        setEditingFeedback(null);
+        fetchFeedbacks();
       }
-    >
-      <Text style={styles.lessonTitle}>{item.title}</Text>
-    </TouchableOpacity>
-  );
+    } catch (error) {
+      console.error('Edit feedback error:', error);
+      Toast.show('Lỗi khi cập nhật đánh giá');
+    }
+  };
+
+  const renderLessonItem = ({ item }) => {
+    const hasAccess = courseDetails?.fee === 0 ||
+      (registration && registration.paymentStatus);
+
+    return (
+      <TouchableOpacity
+        style={[
+          styles.lessonCard,
+          !hasAccess && styles.lockedLesson
+        ]}
+        onPress={() => {
+          if (hasAccess) {
+            navigation.navigate('LessonScreen', {
+              lessonId: item.id,
+              title: item.title,
+            });
+          } else {
+            Toast.show('Vui lòng thanh toán để xem bài học');
+          }
+        }}
+      >
+        <View style={styles.lessonContent}>
+          <Text style={styles.lessonTitle}>{item.title}</Text>
+          {!hasAccess && (
+            <Icon name="lock" size={20} color="#666" />
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const renderFeedbackItem = ({ item }) => (
     <View style={styles.feedbackCard}>
       <View style={styles.feedbackHeader}>
         <Text style={styles.studentName}>{item.studentName}</Text>
-        <Text style={styles.feedbackDate}>{item.feedbackDate}</Text>
+        <View style={styles.actionButtons}>
+          {item.studentId === studentId && (
+            <TouchableOpacity
+              onPress={() => {
+                setEditingFeedback(item);
+                setIsEditModalVisible(true);
+              }}
+              style={styles.editButton}
+            >
+              <Icon name="edit" size={20} color="#666" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
       <RatingStars rating={item.rating} disabled={true} />
       <Text style={styles.feedbackContent}>{item.content}</Text>
@@ -175,11 +267,17 @@ const CourseLessons = () => {
         {/* Course Header */}
         <View style={styles.header}>
           <Text style={styles.courseTitle}>{courseName}</Text>
-          {courseDetails && (
-            <TouchableOpacity style={styles.paymentButton} onPress={handlePayment}>
-              <Text style={styles.paymentButtonText}>
-                Thanh toán {courseDetails.fee}k VNĐ
-              </Text>
+          {courseDetails && courseDetails.fee > 0 && !registration?.paymentStatus && (
+            <TouchableOpacity
+              style={styles.paymentButton}
+              onPress={handlePayment}
+            >
+              <View style={styles.paymentButtonContent}>
+                <Icon name="credit-card" size={24} color="#fff" style={styles.paymentIcon} />
+                <Text style={styles.paymentButtonText}>
+                  Thanh toán {courseDetails.fee.toLocaleString()} VNĐ
+                </Text>
+              </View>
             </TouchableOpacity>
           )}
         </View>
@@ -261,6 +359,51 @@ const CourseLessons = () => {
           </View>
         </View>
       </Modal>
+      <Modal
+        visible={isEditModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsEditModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Chỉnh sửa đánh giá</Text>
+
+            <RatingStars
+              rating={editingFeedback?.rating || 0}
+              onRatingChange={(rating) =>
+                setEditingFeedback(prev => ({ ...prev, rating }))}
+            />
+
+            <TextInput
+              style={styles.feedbackInput}
+              placeholder="Nhập đánh giá của bạn"
+              value={editingFeedback?.content}
+              onChangeText={(content) =>
+                setEditingFeedback(prev => ({ ...prev, content }))}
+              multiline
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => {
+                  setIsEditModalVisible(false);
+                  setEditingFeedback(null);
+                }}
+              >
+                <Text style={styles.buttonText}>Hủy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.submitButton]}
+                onPress={handleEditFeedback}
+              >
+                <Text style={styles.buttonText}>Cập nhật</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -288,15 +431,31 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   paymentButton: {
-    backgroundColor: '#2196F3',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: '#2ecc71',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    marginVertical: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  paymentButtonContent: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paymentIcon: {
+    marginRight: 12,
   },
   paymentButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    color: '#fff',
+    fontSize: 18,
     fontWeight: '600',
+    letterSpacing: 0.5,
+    textAlign: 'center',
   },
   section: {
     padding: 16,
@@ -418,6 +577,39 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '500',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+  },
+  editButton: {
+    padding: 8,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 8,
+  },
+  cancelButton: {
+    backgroundColor: '#6c757d',
+  },
+  submitButton: {
+    backgroundColor: '#28a745',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  lockedLesson: {
+    opacity: 0.7,
+    backgroundColor: '#f5f5f5',
+  },
+  lessonContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 });
 

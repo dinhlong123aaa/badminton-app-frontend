@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import Toast from 'react-native-simple-toast';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { da } from 'date-fns/locale';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -32,10 +33,9 @@ const LoginScreen = () => {
         username,
         password
       });
-
-      if (response.status === 200) {
+      console.log(response);
+      if (response.status === 200 && response.data.data.verified === true) {
         const { id, fullName, email, phoneNumber, dateOfBirth, role } = response.data.data;
-        Toast.show('Đăng nhập thành công');
         navigation.replace('StartScreen', {
           userId: id,
           username,
@@ -45,6 +45,12 @@ const LoginScreen = () => {
           dateOfBirth,
           role
         });
+      }
+      else if (response.status === 200 && response.data.data.verified === false) {
+        Toast.show('Tài khoản chưa được xác thực');
+      }
+      else {
+        Toast.show(response.data.message);
       }
     } catch (error) {
       Toast.show(error.response?.data?.message || 'Đăng nhập thất bại');

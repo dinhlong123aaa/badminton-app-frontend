@@ -105,7 +105,7 @@ const LessonScreen = ({ route }) => {
             </View>
           </ScrollView>
         )}
-
+        
         {lesson?.videoUrl && (
           <View style={styles.videoContainer}>
             <Video
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   image: {
-    width: windowWidth*2,
+    width: windowWidth * 2,
     height: undefined, // Let height be determined by aspect ratio
     aspectRatio: 0.5, // Adjust based on your image aspect ratio
     resizeMode: 'contain',

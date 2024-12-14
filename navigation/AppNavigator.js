@@ -7,6 +7,8 @@ import RegisterScreen from '../screens/RegisterScreen';
 import StartScreen from '../screens/StartScreen';
 import CourseLessons from '../screens/CourseLessons';
 import LessonScreen from '../screens/LessonScreen';
+import PaymentScreen from '../screens/PaymentScreen';
+import RevenueChartScreen from '../screens/RevenueChartScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,7 +45,21 @@ const AppNavigator = () => {
         component={LessonScreen}
         options={({ route }) => ({ title: route.params?.title })}
       />
+      <Stack.Screen
+        name="Payment"
+        component={PaymentScreen}
+        options={{
+          title: 'Thanh toán',
+          presentation: 'modal'
+        }}
+      />
+      <Stack.Screen
+        name="RevenueChart"
+        component={RevenueChartScreen}
+        options={{ title: 'Thống kê doanh thu' }}
+      />
     </Stack.Navigator>
+
   );
 };
 export default AppNavigator;
