@@ -35,7 +35,7 @@ const CourseStatsScreen = ({ route }) => {
       const formattedEndDate = endDate.toISOString().split('T')[0];
       
       const response = await axios.get(
-        `http://10.0.2.2:8080/api/courses/revenue-by-course-in-period?startDate=${formattedStartDate}&endDate=${formattedEndDate}`
+        `http://13.213.1.45:8080/api/courses/revenue-by-course-in-period?startDate=${formattedStartDate}&endDate=${formattedEndDate}`
       );
       
       if (response.data.data) {

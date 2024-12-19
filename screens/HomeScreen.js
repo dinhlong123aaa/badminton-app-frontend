@@ -28,8 +28,8 @@ const HomeScreen = ({ navigation, route }) => {
     try {
       setLoading(true);
       const [ratedResponse, purchasedResponse] = await Promise.all([
-        axios.get('http://10.0.2.2:8080/api/courses/highest-rated-courses-all'),
-        axios.get('http://10.0.2.2:8080/api/courses/highest-purchase-count')
+        axios.get('http://13.213.1.45:8080/api/courses/highest-rated-courses-all'),
+        axios.get('http://13.213.1.45:8080/api/courses/highest-purchase-count')
       ]);
   
       if (ratedResponse.status === 200) {

@@ -5,9 +5,11 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Alert,
-  SafeAreaView
+  SafeAreaView,
+  Linking,
+  Alert
 } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const BadmintonScoreScreen = () => {
   const [score1, setScore1] = useState(0);
@@ -17,62 +19,35 @@ const BadmintonScoreScreen = () => {
   const POINTS_TO_WIN = 21;
 
   const handleScore = (player) => {
-
-    
     if (player === 1) {
       setScore1(score1 + 1);
-      checkWin(score1 + 1, score2);
     } else {
       setScore2(score2 + 1);
-      checkWin(score1, score2 + 1);
     }
-  };
 
-  const checkWin = (s1, s2) => {
-    if ((s1 >= POINTS_TO_WIN || s2 >= POINTS_TO_WIN) && Math.abs(s1 - s2) >= 2) {
-      const winner = s1 > s2 ? 'Người chơi 1' : 'Người chơi 2';
-      Alert.alert(
-        'Hết hiệp',
-        `${winner} chiến thắng!`,
-        [
-          {
-            text: 'Hiếp tiếp theo',
-            onPress: () => {
-              setSets([...sets, { score1: s1, score2: s2 }]);
-              setScore1(0);
-              setScore2(0);
-              setCurrentSet(currentSet + 1);
-            }
-          }
-        ]
-      );
+    // Check for set win
+    if (score1 >= POINTS_TO_WIN || score2 >= POINTS_TO_WIN) {
+      if (Math.abs(score1 - score2) >= 2) {
+        setSets([...sets, { score1, score2 }]);
+        setScore1(0);
+        setScore2(0);
+        setCurrentSet(currentSet + 1);
+      }
     }
   };
 
   const resetGame = () => {
-    Alert.alert(
-      'Bắt đầu lại',
-      'Bạn có muốn bắt đầu lại trận đấu mới?',
-      [
-        { text: 'Hủy', style: 'cancel' },
-        {
-          text: 'Bắt đầu lại',
-          onPress: () => {
-            setScore1(0);
-            setScore2(0);
-            setSets([]);
-            setCurrentSet(1);
-          }
-        }
-      ]
-    );
+    setScore1(0);
+    setScore2(0);
+    setSets([]);
+    setCurrentSet(1);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Badminton Score</Text>
-        <Text style={styles.setInfo}>Hiệp {currentSet}</Text>
+        <Text style={styles.setInfo}>Set {currentSet}</Text>
       </View>
 
       <View style={styles.scoreContainer}>
@@ -82,18 +57,21 @@ const BadmintonScoreScreen = () => {
           <TouchableOpacity
             style={styles.scoreButton}
             onPress={() => handleScore(1)}
+            activeOpacity={0.7}
           >
             <Text style={styles.buttonText}>+1</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.divider} />
+
         <View style={styles.playerSection}>
           <Text style={styles.playerName}>Người chơi 2</Text>
           <Text style={styles.score}>{score2}</Text>
           <TouchableOpacity
             style={styles.scoreButton}
             onPress={() => handleScore(2)}
+            activeOpacity={0.7}
           >
             <Text style={styles.buttonText}>+1</Text>
           </TouchableOpacity>
@@ -114,8 +92,20 @@ const BadmintonScoreScreen = () => {
       <TouchableOpacity
         style={styles.resetButton}
         onPress={resetGame}
+        activeOpacity={0.7}
       >
         <Text style={styles.resetButtonText}>Bắt đầu lại trận đấu</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.communityButton}
+        onPress={() => Linking.openURL('https://www.facebook.com/profile.php?id=61569270992841&mibextid=ZbWKwL')}
+        activeOpacity={0.7}
+      >
+        <Icon name="users" size={18} color="#007AFF" />
+        <Text style={styles.communityButtonText}>
+          Tham gia cộng đồng, tìm người đánh chung?
+        </Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -206,6 +196,36 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+  },
+  communityButton: {
+    backgroundColor: '#fff',
+    padding: 16,
+    position: 'absolute',
+    bottom: 24,
+    left: 20,
+    right: 20,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#007AFF',
+  },
+  communityButtonText: {
+    color: '#007AFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+    textDecorationLine: 'underline',
+    letterSpacing: 0.5,
   },
 });
 

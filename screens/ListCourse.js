@@ -41,7 +41,7 @@ const ListCourse = ({ navigation, route }) => {
   const fetchCourses = async () => {
     try {
       setError(null);
-      const response = await axios.get('http://10.0.2.2:8080/api/courses/all');
+      const response = await axios.get('http://13.213.1.45:8080/api/courses/all');
       if (response.status === 200) {
         setCourses(response.data.data || []);
       }
@@ -78,7 +78,7 @@ const ListCourse = ({ navigation, route }) => {
     }
     try {
       setLoading(true);
-      const response = await axios.get(`http://10.0.2.2:8080/api/courses/search-course?keyword=${searchQuery}`);
+      const response = await axios.get(`http://13.213.1.45:8080/api/courses/search-course?keyword=${searchQuery}`);
       setCourses(response.data.data || []);
     } catch (error) {
       setError('Không thể tìm kiếm khóa học');

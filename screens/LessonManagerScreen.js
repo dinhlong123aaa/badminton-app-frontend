@@ -43,7 +43,7 @@ const LessonManagerScreen = ({ route }) => {
   const fetchLessons = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://10.0.2.2:8080/api/lessons/course/${courseId}`);
+      const response = await axios.get(`http://13.213.1.45:8080/api/lessons/course/${courseId}`);
       setLessons(response.data.data);
     } catch (error) {
       Toast.show('Không thể tải danh sách bài học');
@@ -134,7 +134,7 @@ const LessonManagerScreen = ({ route }) => {
         name: selectedImage.name
       });
 
-      await axios.post('http://10.0.2.2:8080/api/lessons/upload', formData, {
+      await axios.post('http://13.213.1.45:8080/api/lessons/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

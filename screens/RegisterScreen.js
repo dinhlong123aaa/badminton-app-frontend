@@ -110,7 +110,7 @@ const RegisterScreen = ({ navigation }) => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://10.0.2.2:8080/api/auth/register', {
+      const response = await axios.post('http://13.213.1.45:8080/api/auth/register', {
         ...formData,
         role: 'STUDENT'
       });
@@ -134,7 +134,7 @@ const RegisterScreen = ({ navigation }) => {
 
     try {
       setVerifyingOtp(true);
-      const response = await axios.post('http://10.0.2.2:8080/api/auth/verify-otp', {
+      const response = await axios.post('http://13.213.1.45:8080/api/auth/verify-otp', {
         email: formData.email,
         otp
       });
@@ -155,7 +155,7 @@ const RegisterScreen = ({ navigation }) => {
 
   const handleResendOTP = async () => {
     try {
-      await axios.post('http://10.0.2.2:8080/api/auth/resend-otp', {
+      await axios.post('http://13.213.1.45:8080/api/auth/resend-otp', {
         email: formData.email
       });
       setOtpTimer(60);

@@ -29,7 +29,7 @@ const LoginScreen = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://10.0.2.2:8080/api/auth/login', {
+      const response = await axios.post('http://13.213.1.45:8080/api/auth/login', {
         username,
         password
       });

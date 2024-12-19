@@ -45,9 +45,9 @@ const StatisticsScreen = ({ navigation }) => {
       setError(null);
 
       const [revenueRes, usersRes, coursesRes] = await Promise.all([
-        axios.get('http://10.0.2.2:8080/api/v1/registrations/total-fee-pay'),
-        axios.get('http://10.0.2.2:8080/api/auth/count'),
-        axios.get('http://10.0.2.2:8080/api/courses/count')
+        axios.get('http://13.213.1.45:8080/api/v1/registrations/total-fee-pay'),
+        axios.get('http://13.213.1.45:8080/api/auth/count'),
+        axios.get('http://13.213.1.45:8080/api/courses/count')
       ]);
 
       setStats({

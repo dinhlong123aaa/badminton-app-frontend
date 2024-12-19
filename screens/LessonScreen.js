@@ -33,7 +33,7 @@ const LessonScreen = ({ route }) => {
 
   const fetchLesson = async () => {
     try {
-      const response = await axios.get(`http://10.0.2.2:8080/api/lessons/${lessonId}`);
+      const response = await axios.get(`http://13.213.1.45:8080/api/lessons/${lessonId}`);
       if (response.status === 200) {
         console.log('Lesson data:', response.data.data);
         setLesson(response.data.data);

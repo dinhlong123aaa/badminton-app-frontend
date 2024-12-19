@@ -89,7 +89,7 @@ const CourseLessons = () => {
   const fetchRegistrationStatus = async () => {
     try {
       const response = await axios.get(
-        `http://10.0.2.2:8080/api/v1/registrations/student/${studentId}/course/${courseId}`
+        `http://13.213.1.45:8080/api/v1/registrations/student/${studentId}/course/${courseId}`
       );
       setRegistration(response.data);
     } catch (error) {
@@ -100,7 +100,7 @@ const CourseLessons = () => {
 
   const fetchCourseDetails = async () => {
     try {
-      const response = await axios.get(`http://10.0.2.2:8080/api/courses/${courseId}`);
+      const response = await axios.get(`http://13.213.1.45:8080/api/courses/${courseId}`);
       if (response.status === 200) {
         setCourseDetails(response.data.data);
       }
@@ -113,7 +113,7 @@ const CourseLessons = () => {
 
   const fetchLessons = async () => {
     try {
-      const response = await axios.get(`http://10.0.2.2:8080/api/lessons/course/${courseId}`);
+      const response = await axios.get(`http://13.213.1.45:8080/api/lessons/course/${courseId}`);
       if (response.status === 200) {
         setLessons(response.data.data);
       }
@@ -189,7 +189,7 @@ const CourseLessons = () => {
   };
   const fetchFeedbacks = async () => {
     try {
-      const response = await axios.get(`http://10.0.2.2:8080/api/feedbacks/course/${courseId}`);
+      const response = await axios.get(`http://13.213.1.45:8080/api/feedbacks/course/${courseId}`);
       if (response.status === 200) {
         setFeedbacks(response.data.data);
       }
@@ -234,7 +234,7 @@ const CourseLessons = () => {
             content: newFeedback.content.trim(),
             rating: newFeedback.rating,
           };
-          const response = await axios.post('http://10.0.2.2:8080/api/feedbacks', feedbackData);
+          const response = await axios.post('http://13.213.1.45:8080/api/feedbacks', feedbackData);
           if (response.status === 200) {
             Toast.show('Phản hồi đã được thêm');
             setNewFeedback({ content: '', rating: 5 });
@@ -256,7 +256,7 @@ const CourseLessons = () => {
         content: newFeedback.content.trim(),
         rating: newFeedback.rating,
       };
-      const response = await axios.post('http://10.0.2.2:8080/api/feedbacks', feedbackData);
+      const response = await axios.post('http://13.213.1.45:8080/api/feedbacks', feedbackData);
       if (response.status === 200) {
         Toast.show('Phản hồi đã được thêm');
         setNewFeedback({ content: '', rating: 5 });
@@ -285,7 +285,7 @@ const CourseLessons = () => {
       showCustomerServiceAlert(async () => {
         try {
           const response = await axios.patch(
-            `http://10.0.2.2:8080/api/feedbacks/${editingFeedback.id}`,
+            `http://13.213.1.45:8080/api/feedbacks/${editingFeedback.id}`,
             {
               id: editingFeedback.id,
               content: editingFeedback.content.trim(),
@@ -309,7 +309,7 @@ const CourseLessons = () => {
     // Normal edit flow
     try {
       const response = await axios.patch(
-        `http://10.0.2.2:8080/api/feedbacks/${editingFeedback.id}`,
+        `http://13.213.1.45:8080/api/feedbacks/${editingFeedback.id}`,
         {
           id: editingFeedback.id,
           content: editingFeedback.content.trim(),

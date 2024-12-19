@@ -23,7 +23,7 @@ const PaymentScreen = ({ route, navigation }) => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://10.0.2.2:8080/api/v1/payment/vn-pay?amount=${amount}&bankCode=NCB`
+        `http://13.213.1.45:8080/api/v1/payment/vn-pay?amount=${amount}&bankCode=NCB`
       );
 
       if (response.data.code === 200 && response.data.data.paymentUrl) {
@@ -96,7 +96,7 @@ const PaymentScreen = ({ route, navigation }) => {
       };
 
       const response = await axios.post(
-        'http://10.0.2.2:8080/api/v1/registrations',
+        'http://13.213.1.45:8080/api/v1/registrations',
         registrationData
       );
 
