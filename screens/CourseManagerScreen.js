@@ -40,7 +40,7 @@ const CourseManagerScreen = ({ navigation }) => {
   const fetchCourses = async () => {
     try {
       setError(null);
-      const response = await axios.get('http://47.129.50.166:8080/api/courses/all');
+      const response = await axios.get('http://10.0.2.2:8080/api/courses/all');
       if (response.status === 200) {
         setCourses(response.data.data);
       }
@@ -84,7 +84,7 @@ const CourseManagerScreen = ({ navigation }) => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://47.129.50.166:8080/api/courses', {
+      const response = await axios.post('http://10.0.2.2:8080/api/courses', {
         ...newCourse,
         fee: parseFloat(newCourse.fee)
       });
@@ -117,7 +117,7 @@ const CourseManagerScreen = ({ navigation }) => {
           text: "Xóa",
           onPress: async () => {
             try {
-              const response = await axios.delete(`http://47.129.50.166:8080/api/courses/${courseId}`);
+              const response = await axios.delete(`http://10.0.2.2:8080/api/courses/${courseId}`);
               if (response.status === 200) {
                 Toast.show(response.data.message);
                 fetchCourses();

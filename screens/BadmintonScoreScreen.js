@@ -17,6 +17,8 @@ const BadmintonScoreScreen = () => {
   const POINTS_TO_WIN = 21;
 
   const handleScore = (player) => {
+
+    
     if (player === 1) {
       setScore1(score1 + 1);
       checkWin(score1 + 1, score2);

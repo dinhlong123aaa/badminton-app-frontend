@@ -38,7 +38,7 @@ const UserManagerScreen = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://47.129.50.166:8080/api/auth/users');
+      const response = await axios.get('http://10.0.2.2:8080/api/auth/users');
       setUsers(response.data.data);
     } catch (error) {
       Alert.alert('Lỗi', 'Không thể tải danh sách người dùng');
@@ -54,7 +54,7 @@ const UserManagerScreen = () => {
     }
     setLoading(true);
     try {
-      const response = await axios.get(`http://47.129.50.166:8080/api/auth/users/search?name=${searchQuery}`);
+      const response = await axios.get(`http://10.0.2.2:8080/api/auth/users/search?name=${searchQuery}`);
       setUsers(response.data.data);
     } catch (error) {
       Alert.alert('Lỗi', 'Không thể tìm kiếm người dùng');
@@ -74,7 +74,7 @@ const UserManagerScreen = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              const response = await axios.delete(`http://47.129.50.166:8080/api/auth/users/${userId}`);
+              const response = await axios.delete(`http://10.0.2.2:8080/api/auth/users/${userId}`);
               if (response.status === 200) {
                 fetchUsers();
                 Alert.alert('Thành công', 'Đã xóa người dùng');
@@ -104,7 +104,7 @@ const UserManagerScreen = () => {
 
   const handleUpdate = async () => {
     try {
-      await axios.put(`http://47.129.50.166:8080/api/auth/users/${selectedUser.id}`, editForm);
+      await axios.put(`http://10.0.2.2:8080/api/auth/users/${selectedUser.id}`, editForm);
       setModalVisible(false);
       fetchUsers();
     } catch (error) {

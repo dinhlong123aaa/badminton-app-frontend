@@ -1,9 +1,21 @@
 {
-    "builds": {
-      "android": {
-        "release": {
-          "workflow": "managed"
-        }
-      }
+  "cli": {
+    "version": ">= 14.2.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true
     }
+  },
+  "submit": {
+    "production": {}
   }
+}

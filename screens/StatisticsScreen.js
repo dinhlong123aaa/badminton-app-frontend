@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 
 const StatCard = ({ title, value, icon, color, onPress }) => (
-  <TouchableOpacity 
+  <TouchableOpacity
     style={[styles.card, { borderLeftColor: color }]}
     onPress={onPress}
   >
@@ -45,9 +45,9 @@ const StatisticsScreen = ({ navigation }) => {
       setError(null);
 
       const [revenueRes, usersRes, coursesRes] = await Promise.all([
-        axios.get('http://47.129.50.166:8080/api/v1/registrations/total-fee-pay'),
-        axios.get('http://47.129.50.166:8080/api/auth/count'),
-        axios.get('http://47.129.50.166:8080/api/courses/count')
+        axios.get('http://10.0.2.2:8080/api/v1/registrations/total-fee-pay'),
+        axios.get('http://10.0.2.2:8080/api/auth/count'),
+        axios.get('http://10.0.2.2:8080/api/courses/count')
       ]);
 
       setStats({
@@ -69,6 +69,12 @@ const StatisticsScreen = ({ navigation }) => {
     });
   };
 
+  const handleCoursePress = () => {
+    navigation.navigate('CourseStats', {
+      totalCourses: stats.totalCourses
+    });
+  };
+
   if (loading) {
     return (
       <View style={styles.centerContainer}>
@@ -81,7 +87,7 @@ const StatisticsScreen = ({ navigation }) => {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.retryButton}
           onPress={fetchStatistics}
         >
@@ -100,7 +106,7 @@ const StatisticsScreen = ({ navigation }) => {
       <View style={styles.grid}>
         <StatCard
           title="Tổng số học viên"
-          value={stats.totalStudents}
+          value={stats.totalStudents - 1}
           icon="users"
           color="#007AFF"
         />
@@ -109,6 +115,7 @@ const StatisticsScreen = ({ navigation }) => {
           value={stats.totalCourses}
           icon="book"
           color="#FF9500"
+          onPress={handleCoursePress}  // Add this
         />
         <StatCard
           title="Doanh thu (VNĐ)"

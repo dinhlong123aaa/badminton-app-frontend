@@ -1,29 +1,26 @@
 // ListCourse.js
 import React, { useState, useEffect } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  FlatList, 
-  ActivityIndicator, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
   TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
   RefreshControl,
-  Alert
+  Image
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Toast from 'react-native-simple-toast';
 import axios from 'axios';
 
-const ListCourse = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
+const ListCourse = ({ navigation, route }) => {
   const { username, userId } = route.params || {};
-
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     validateUser();
@@ -44,13 +41,12 @@ const ListCourse = () => {
   const fetchCourses = async () => {
     try {
       setError(null);
-      const response = await axios.get('http://47.129.50.166:8080/api/courses/all');
+      const response = await axios.get('http://10.0.2.2:8080/api/courses/all');
       if (response.status === 200) {
         setCourses(response.data.data || []);
       }
     } catch (error) {
       setError('Không thể tải danh sách khóa học');
-      Toast.show('Không thể tải danh sách khóa học', Toast.LONG);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -75,6 +71,22 @@ const ListCourse = () => {
     }
   };
 
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      fetchCourses();
+      return;
+    }
+    try {
+      setLoading(true);
+      const response = await axios.get(`http://10.0.2.2:8080/api/courses/search-course?keyword=${searchQuery}`);
+      setCourses(response.data.data || []);
+    } catch (error) {
+      setError('Không thể tìm kiếm khóa học');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderCourseItem = ({ item }) => {
     const levelDetails = getLevelDetails(item.level);
     
@@ -87,26 +99,29 @@ const ListCourse = () => {
           studentId: userId
         })}
       >
+        <Image 
+          source={require('../assets/images/thump.png')}
+          style={styles.courseImage}
+          resizeMode="cover"
+        />
         <View style={styles.courseContent}>
-          <View style={styles.courseHeader}>
-            <Text style={styles.courseName}>{item.courseName}</Text>
+          <Text style={styles.courseName}>{item.courseName}</Text>
+          <Text style={styles.description} numberOfLines={2}>
+            {item.description}
+          </Text>
+          <View style={styles.courseFooter}>
+            <View style={styles.ratingContainer}>
+              <Icon name="star" size={16} color="#FFC107" />
+              <Text style={styles.ratingText}>
+                {item.averageRating ? item.averageRating.toFixed(1) : 'Chưa có đánh giá'}
+              </Text>
+            </View>
             <View style={[styles.levelBadge, { backgroundColor: levelDetails.color + '20' }]}>
               <Icon name={levelDetails.icon} size={16} color={levelDetails.color} />
               <Text style={[styles.levelText, { color: levelDetails.color }]}>
                 {levelDetails.text}
               </Text>
             </View>
-          </View>
-  
-          <Text style={styles.description} numberOfLines={2}>
-            {item.description}
-          </Text>
-  
-          <View style={styles.courseFooter}>
-            <Text style={styles.fee}>
-              {item.fee > 0 ? `${item.fee.toLocaleString()} VNĐ` : ''}
-            </Text>
-            <Icon name="chevron-right" size={16} color="#666" />
           </View>
         </View>
       </TouchableOpacity>
@@ -123,11 +138,23 @@ const ListCourse = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Tìm kiếm khóa học..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={handleSearch}
+        />
+        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+          <Icon name="search" size={20} color="#fff" />
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={courses}
         renderItem={renderCourseItem}
         keyExtractor={item => item.id.toString()}
-        contentContainerStyle={styles.listContainer}
         refreshControl={
           <RefreshControl 
             refreshing={refreshing} 
@@ -158,74 +185,101 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  listContainer: {
+  searchContainer: {
+    flexDirection: 'row',
     padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginRight: 8,
+  },
+  searchButton: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   courseCard: {
+    flexDirection: 'row',
     backgroundColor: '#fff',
     borderRadius: 12,
+    marginHorizontal: 16,
     marginBottom: 16,
+    overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    height: 140,
+  },
+  courseImage: {
+    width: 120,
+    height: '100%',
   },
   courseContent: {
-    padding: 16,
-  },
-  courseHeader: {
-    flexDirection: 'row',
+    flex: 1,
+    padding: 12,
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
   },
   courseName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-    flex: 1,
-    marginRight: 12,
+    marginBottom: 4,
   },
   description: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 12,
-    lineHeight: 20,
-  },
-  levelBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  levelText: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 6,
+    marginBottom: 8,
+    flex: 1,
   },
   courseFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  fee: {
-    fontSize: 16,
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  ratingText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  levelBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  levelText: {
+    fontSize: 12,
     fontWeight: '600',
-    color: '#28a745',
   },
   emptyTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
     marginTop: 16,
   },
   emptySubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
     marginTop: 8,
-    textAlign: 'center',
   }
 });
 

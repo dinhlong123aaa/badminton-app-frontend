@@ -31,7 +31,7 @@ const UserInfoScreen = ({ route }) => {
 
   const fetchUserInfo = async () => {
     try {
-      const response = await axios.get(`http://47.129.50.166:8080/api/auth/users/username/${username}`);
+      const response = await axios.get(`http://10.0.2.2:8080/api/auth/users/username/${username}`);
       if (response.status === 200) {
         setUserInfo(response.data.data);
       }
@@ -58,8 +58,9 @@ const UserInfoScreen = ({ route }) => {
     }
   
     try {
-      const response = await axios.put(`http://47.129.50.166:8080/api/auth/users/change-password/${username}`, {
-        newPassword: newPassword
+      console.log(username)
+      const response = await axios.put(`http://10.0.2.2:8080/api/auth/users/change-password/${username}`, {
+        password: newPassword
       });
   
       if (response.status === 200) {
@@ -207,47 +208,60 @@ const UserInfoScreen = ({ route }) => {
     </ScrollView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f9f9f9',
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: '#007AFF',
     padding: 20,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   avatarContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#f0f8ff',
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
   userName: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    color: '#fff',
+    marginBottom: 8,
   },
   userRole: {
     fontSize: 16,
-    color: '#666',
+    color: '#d9e9ff',
+    fontStyle: 'italic',
   },
   infoSection: {
     backgroundColor: '#fff',
     padding: 20,
-    marginTop: 20,
+    marginVertical: 20,
+    borderRadius: 12,
+    marginHorizontal: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   infoItem: {
     flexDirection: 'row',
@@ -258,17 +272,19 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 16,
-    color: '#666',
+    color: '#555',
     marginLeft: 12,
-    width: 120,
+    width: 130,
   },
   infoValue: {
     flex: 1,
     fontSize: 16,
     color: '#333',
+    fontWeight: '500',
   },
   actionButtons: {
     padding: 20,
+    marginTop: 10,
   },
   changePasswordButton: {
     backgroundColor: '#007AFF',
@@ -276,8 +292,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 15,
-    borderRadius: 10,
-    marginBottom: 12,
+    borderRadius: 12,
+    marginBottom: 15,
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   logoutButton: {
     backgroundColor: '#FF3B30',
@@ -285,12 +306,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 12,
+    shadowColor: '#FF3B30',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
     marginLeft: 8,
   },
   modalOverlay: {
@@ -301,21 +327,29 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 16,
+    padding: 25,
     width: '90%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color: '#333',
   },
   input: {
     backgroundColor: '#f5f5f5',
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
   modalButtons: {
     flexDirection: 'row',
@@ -334,5 +368,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#007AFF',
   },
 });
+
 
 export default UserInfoScreen;

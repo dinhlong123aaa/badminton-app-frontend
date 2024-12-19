@@ -1,66 +1,48 @@
-// RevenueChartScreen.js
+// CourseStatsScreen.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
+  ScrollView,
   StyleSheet,
-  Dimensions,
   ActivityIndicator,
+  Dimensions,
   TouchableOpacity
 } from 'react-native';
-import { LineChart } from 'react-native-chart-kit';
+import { BarChart } from 'react-native-chart-kit';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
 
-const RevenueChartScreen = ({ route }) => {
-  const { totalRevenue } = route.params;
+const CourseStatsScreen = ({ route }) => {
+  const { totalCourses } = route.params;
   const [loading, setLoading] = useState(true);
+  const [courseData, setCourseData] = useState([]);
   const [error, setError] = useState(null);
-  const [revenueData, setRevenueData] = useState({
-    labels: [],
-    datasets: [{ data: [] }]
-  });
-  const [startDate, setStartDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), 0, 1));
   const [endDate, setEndDate] = useState(new Date());
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
   useEffect(() => {
-    fetchRevenueData();
+    fetchCourseStats();
   }, [startDate, endDate]);
 
-  const fetchRevenueData = async () => {
+  const fetchCourseStats = async () => {
     try {
       setLoading(true);
-      setError(null);
-
-      const startYear = startDate.getFullYear();
-      const startMonth = startDate.getMonth() + 1;
-      const endYear = endDate.getFullYear();
-      const endMonth = endDate.getMonth() + 1;
-
-      const response = await axios.get(
-        `http://10.0.2.2:8080/api/v1/registrations/revenue-between-months?startYear=${startYear}&startMonth=${startMonth}&endYear=${endYear}&endMonth=${endMonth}`
-      );
-
-      const monthlyData = response.data.data;
+      const formattedStartDate = startDate.toISOString().split('T')[0];
+      const formattedEndDate = endDate.toISOString().split('T')[0];
       
-      // Transform data for chart
-      const labels = Object.keys(monthlyData).map(date => {
-        const [year, month] = date.split('-');
-        return `${month}/${year}`;
-      });
-
-      const values = Object.values(monthlyData);
-
-      setRevenueData({
-        labels,
-        datasets: [{ data: values }]
-      });
+      const response = await axios.get(
+        `http://10.0.2.2:8080/api/courses/revenue-by-course-in-period?startDate=${formattedStartDate}&endDate=${formattedEndDate}`
+      );
+      
+      if (response.data.data) {
+        setCourseData(response.data.data);
+      }
     } catch (error) {
-      console.error('Error fetching revenue data:', error);
-      setError('Không thể tải dữ liệu doanh thu');
+      setError('Không thể tải thông tin khóa học');
     } finally {
       setLoading(false);
     }
@@ -83,29 +65,23 @@ const RevenueChartScreen = ({ route }) => {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2196F3" />
+        <ActivityIndicator size="large" color="#FF9500" />
       </View>
     );
   }
 
-  if (error) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchRevenueData}>
-          <Text style={styles.buttonText}>Thử lại</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  const chartData = {
+    labels: courseData.map(item => item.courseName),
+    datasets: [{
+      data: courseData.map(item => item.totalRevenue)
+    }]
+  };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Thống kê doanh thu</Text>
-        <Text style={styles.totalRevenue}>
-          Tổng doanh thu: {totalRevenue?.toLocaleString()} VNĐ
-        </Text>
+        <Text style={styles.title}>Thống kê khóa học</Text>
+        <Text style={styles.subtitle}>Tổng số: {totalCourses} khóa học</Text>
       </View>
 
       <View style={styles.datePickerContainer}>
@@ -115,7 +91,7 @@ const RevenueChartScreen = ({ route }) => {
         >
           <Icon name="calendar" size={16} color="#666" style={styles.dateIcon} />
           <Text style={styles.dateText}>
-            Từ: {startDate.getMonth() + 1}/{startDate.getFullYear()}
+            Từ: {startDate.toLocaleDateString('vi-VN')}
           </Text>
         </TouchableOpacity>
 
@@ -125,7 +101,7 @@ const RevenueChartScreen = ({ route }) => {
         >
           <Icon name="calendar" size={16} color="#666" style={styles.dateIcon} />
           <Text style={styles.dateText}>
-            Đến: {endDate.getMonth() + 1}/{endDate.getFullYear()}
+            Đến: {endDate.toLocaleDateString('vi-VN')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -148,31 +124,40 @@ const RevenueChartScreen = ({ route }) => {
         />
       )}
 
-      <View style={styles.chartContainer}>
-        <LineChart
-          data={revenueData}
-          width={Dimensions.get('window').width - 32}
+      <ScrollView horizontal>
+        <BarChart
+          data={chartData}
+          width={Math.max(Dimensions.get('window').width - 32, courseData.length * 100)}
           height={220}
+          yAxisLabel=""
           chartConfig={{
-            backgroundColor: '#fff',
-            backgroundGradientFrom: '#fff',
-            backgroundGradientTo: '#fff',
+            backgroundColor: '#ffffff',
+            backgroundGradientFrom: '#ffffff',
+            backgroundGradientTo: '#ffffff',
             decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(33, 150, 243, ${opacity})`,
+            color: (opacity = 1) => `rgba(255, 149, 0, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            style: { borderRadius: 16 },
-            propsForDots: {
-              r: '6',
-              strokeWidth: '2',
-              stroke: '#2196F3'
+            style: {
+              borderRadius: 16
             }
           }}
-          bezier
           style={styles.chart}
-          formatYLabel={(value) => `${parseInt(value).toLocaleString()}đ`}
+          verticalLabelRotation={30}
+          showValuesOnTopOfBars={true}
         />
+      </ScrollView>
+
+      <View style={styles.statsGrid}>
+        {courseData.map((course, index) => (
+          <View key={index} style={styles.courseCard}>
+            <Text style={styles.courseName}>{course.courseName}</Text>
+            <Text style={styles.courseRevenue}>
+              {course.totalRevenue.toLocaleString()} VNĐ
+            </Text>
+          </View>
+        ))}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -197,10 +182,9 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 8,
   },
-  totalRevenue: {
-    fontSize: 18,
-    color: '#2196F3',
-    fontWeight: '600',
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
   },
   datePickerContainer: {
     flexDirection: 'row',
@@ -212,10 +196,10 @@ const styles = StyleSheet.create({
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
     backgroundColor: '#f5f5f5',
+    padding: 12,
     borderRadius: 8,
-    minWidth: 140,
+    minWidth: 150,
   },
   dateIcon: {
     marginRight: 8,
@@ -224,33 +208,37 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
-  chartContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    margin: 16,
-    elevation: 2,
-  },
   chart: {
     marginVertical: 8,
     borderRadius: 16,
+    backgroundColor: '#fff',
+    padding: 16,
+  },
+  statsGrid: {
+    padding: 16,
+  },
+  courseCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
+  },
+  courseName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  courseRevenue: {
+    fontSize: 14,
+    color: '#FF9500',
+    fontWeight: '500',
   },
   errorText: {
     color: '#dc3545',
     fontSize: 16,
-    marginBottom: 16,
-  },
-  retryButton: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
   }
 });
 
-export default RevenueChartScreen;
+export default CourseStatsScreen;

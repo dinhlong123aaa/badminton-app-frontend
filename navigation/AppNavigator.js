@@ -9,6 +9,7 @@ import CourseLessons from '../screens/CourseLessons';
 import LessonScreen from '../screens/LessonScreen';
 import PaymentScreen from '../screens/PaymentScreen';
 import RevenueChartScreen from '../screens/RevenueChartScreen';
+import CourseStatsScreen from '../screens/CourseStatsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +58,20 @@ const AppNavigator = () => {
         name="RevenueChart"
         component={RevenueChartScreen}
         options={{ title: 'Thống kê doanh thu' }}
+      />
+      <Stack.Screen
+        name="CourseStats"
+        component={CourseStatsScreen}
+        options={{
+          title: 'Thống kê khóa học',
+          headerStyle: {
+            backgroundColor: '#fff',
+          },
+          headerTintColor: '#000',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
       />
     </Stack.Navigator>
 

@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   ScrollView,
   Alert,
+  Linking,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -37,6 +38,11 @@ const RatingStars = ({ rating, onRatingChange, disabled }) => (
     ))}
   </View>
 );
+const BANNED_WORDS = [
+  'dm', 'đm', 'đkm', 'dkm', 'vcl', 'clm', 'cc', 'ccc', 'cl', 'lon', 'loz',
+  'đệch', 'dech', 'deo', 'đéo', 'đít', 'dit', 'đụ', 'du', 'điếm', 'diem',
+  'đĩ', 'di', 'fuck', 'shit', 'dick', 'bitch'
+];
 
 const getLevelDetails = (level) => {
   switch (level?.toLowerCase()) {
@@ -50,6 +56,7 @@ const getLevelDetails = (level) => {
       return { icon: 'star-o', color: '#6c757d' };
   }
 };
+
 const CourseLessons = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -82,7 +89,7 @@ const CourseLessons = () => {
   const fetchRegistrationStatus = async () => {
     try {
       const response = await axios.get(
-        `http://47.129.50.166:8080/api/v1/registrations/student/${studentId}/course/${courseId}`
+        `http://10.0.2.2:8080/api/v1/registrations/student/${studentId}/course/${courseId}`
       );
       setRegistration(response.data);
     } catch (error) {
@@ -93,7 +100,7 @@ const CourseLessons = () => {
 
   const fetchCourseDetails = async () => {
     try {
-      const response = await axios.get(`http://47.129.50.166:8080/api/courses/${courseId}`);
+      const response = await axios.get(`http://10.0.2.2:8080/api/courses/${courseId}`);
       if (response.status === 200) {
         setCourseDetails(response.data.data);
       }
@@ -106,7 +113,7 @@ const CourseLessons = () => {
 
   const fetchLessons = async () => {
     try {
-      const response = await axios.get(`http://47.129.50.166:8080/api/lessons/course/${courseId}`);
+      const response = await axios.get(`http://10.0.2.2:8080/api/lessons/course/${courseId}`);
       if (response.status === 200) {
         setLessons(response.data.data);
       }
@@ -115,9 +122,74 @@ const CourseLessons = () => {
     }
   };
 
+  const validateContent = (content) => {
+    const words = content.toLowerCase().split(/\s+/);
+    const foundBannedWords = words.filter(word => BANNED_WORDS.includes(word));
+
+    if (foundBannedWords.length > 0) {
+      return {
+        isValid: false,
+        message: 'Nội dung chứa từ ngữ không phù hợp'
+      };
+    }
+    return {
+      isValid: true
+    };
+  };
+  const showCustomerServiceAlert = (onProceed) => {
+    Alert.alert(
+      'Đánh giá 1 sao ⭐',
+      'Chúng tôi rất tiếc về trải nghiệm không tốt của bạn. Bạn có muốn liên hệ với bộ phận CSKH để được hỗ trợ?',
+      [
+        {
+          text: 'Liên hệ CSKH',
+          onPress: () => {
+            const url = "https://www.facebook.com/profile.php?id=61569270992841&mibextid=ZbWKwL";
+            Linking.canOpenURL(url).then(supported => {
+              if (supported) {
+                Linking.openURL(url);
+              } else {
+                Toast.show('Không thể mở liên kết Facebook');
+              }
+            });
+          },
+          style: 'default',
+        },
+        {
+          text: 'Tiếp tục đánh giá',
+          onPress: onProceed,
+          style: 'default'
+        },
+        {
+          text: 'Hủy',
+          style: 'cancel',
+          color: '#6c757d'
+        }
+      ],
+      {
+        cancelable: true,
+        titleStyle: {
+          fontSize: 18,
+          fontWeight: 'bold',
+          color: '#dc3545'
+        },
+        messageStyle: {
+          fontSize: 16,
+          color: '#212529',
+          lineHeight: 24
+        },
+        containerStyle: {
+          backgroundColor: '#fff',
+          borderRadius: 12,
+          padding: 20,
+          elevation: 5
+        }
+      }
+    );
+  };
   const fetchFeedbacks = async () => {
     try {
-      const response = await axios.get(`http://47.129.50.166:8080/api/feedbacks/course/${courseId}`);
+      const response = await axios.get(`http://10.0.2.2:8080/api/feedbacks/course/${courseId}`);
       if (response.status === 200) {
         setFeedbacks(response.data.data);
       }
@@ -145,7 +217,38 @@ const CourseLessons = () => {
       Toast.show('Vui lòng nhập nội dung phản hồi', Toast.LONG);
       return;
     }
-
+  
+    const validation = validateContent(newFeedback.content);
+    if (!validation.isValid) {
+      Toast.show(validation.message, Toast.LONG);
+      return;
+    }
+  
+    // Check for 1-star rating
+    if (newFeedback.rating === 1) {
+      showCustomerServiceAlert(async () => {
+        try {
+          const feedbackData = {
+            studentId: studentId,
+            courseId: courseId,
+            content: newFeedback.content.trim(),
+            rating: newFeedback.rating,
+          };
+          const response = await axios.post('http://10.0.2.2:8080/api/feedbacks', feedbackData);
+          if (response.status === 200) {
+            Toast.show('Phản hồi đã được thêm');
+            setNewFeedback({ content: '', rating: 5 });
+            fetchFeedbacks();
+            setIsFeedbackModalVisible(false);
+          }
+        } catch (error) {
+          Toast.show('Không thể thêm phản hồi', Toast.LONG);
+        }
+      });
+      return;
+    }
+  
+    // Normal feedback flow
     try {
       const feedbackData = {
         studentId: studentId,
@@ -153,40 +256,67 @@ const CourseLessons = () => {
         content: newFeedback.content.trim(),
         rating: newFeedback.rating,
       };
-      console.log('Feedback data:', feedbackData);
-      const response = await axios.post('http://47.129.50.166:8080/api/feedbacks', feedbackData);
-      console.log(response.data.message);
+      const response = await axios.post('http://10.0.2.2:8080/api/feedbacks', feedbackData);
       if (response.status === 200) {
         Toast.show('Phản hồi đã được thêm');
         setNewFeedback({ content: '', rating: 5 });
         fetchFeedbacks();
         setIsFeedbackModalVisible(false);
-      } else {
-        //show response.data.message
-        Toast.show(response.data.message);
       }
     } catch (error) {
       Toast.show('Không thể thêm phản hồi', Toast.LONG);
     }
   };
+  
   const handleEditFeedback = async () => {
     if (!editingFeedback.content.trim()) {
       Toast.show('Vui lòng nhập nội dung phản hồi', Toast.LONG);
       return;
     }
-
+  
+    const validation = validateContent(editingFeedback.content);
+    if (!validation.isValid) {
+      Toast.show(validation.message, Toast.LONG);
+      return;
+    }
+  
+    // Check for 1-star rating
+    if (editingFeedback.rating === 1) {
+      showCustomerServiceAlert(async () => {
+        try {
+          const response = await axios.patch(
+            `http://10.0.2.2:8080/api/feedbacks/${editingFeedback.id}`,
+            {
+              id: editingFeedback.id,
+              content: editingFeedback.content.trim(),
+              rating: editingFeedback.rating,
+              feedbackDate: new Date().toISOString().split('T')[0]
+            }
+          );
+          if (response.status === 200) {
+            Toast.show('Cập nhật đánh giá thành công');
+            setIsEditModalVisible(false);
+            setEditingFeedback(null);
+            fetchFeedbacks();
+          }
+        } catch (error) {
+          Toast.show('Lỗi khi cập nhật đánh giá');
+        }
+      });
+      return;
+    }
+  
+    // Normal edit flow
     try {
       const response = await axios.patch(
-        `http://47.129.50.166:8080/api/feedbacks/${editingFeedback.id}`,
+        `http://10.0.2.2:8080/api/feedbacks/${editingFeedback.id}`,
         {
-
           id: editingFeedback.id,
           content: editingFeedback.content.trim(),
           rating: editingFeedback.rating,
           feedbackDate: new Date().toISOString().split('T')[0]
         }
       );
-
       if (response.status === 200) {
         Toast.show('Cập nhật đánh giá thành công');
         setIsEditModalVisible(false);
@@ -194,7 +324,6 @@ const CourseLessons = () => {
         fetchFeedbacks();
       }
     } catch (error) {
-      console.error('Edit feedback error:', error);
       Toast.show('Lỗi khi cập nhật đánh giá');
     }
   };
